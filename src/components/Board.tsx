@@ -1,0 +1,121 @@
+import type { Board as BoardData } from "../game/board";
+import { Cell } from "./Cell";
+
+type BoardShape = {
+  board: BoardData,
+};
+
+const gridConfigs = [
+  'grid-rows-[repeat(1,60px)] grid-cols-[repeat(1,60px)]',
+  'grid-rows-[repeat(2,60px)] grid-cols-[repeat(2,60px)]',
+  'grid-rows-[repeat(3,60px)] grid-cols-[repeat(3,60px)]',
+  'grid-rows-[repeat(4,60px)] grid-cols-[repeat(4,60px)]',
+  'grid-rows-[repeat(5,60px)] grid-cols-[repeat(5,60px)]',
+  'grid-rows-[repeat(6,60px)] grid-cols-[repeat(6,60px)]',
+  'grid-rows-[repeat(7,60px)] grid-cols-[repeat(7,60px)]',
+  'grid-rows-[repeat(8,60px)] grid-cols-[repeat(8,60px)]',
+  'grid-rows-[repeat(9,60px)] grid-cols-[repeat(9,60px)]',
+  'grid-rows-[repeat(10,60px)] grid-cols-[repeat(10,60px)]',
+  'grid-rows-[repeat(11,60px)] grid-cols-[repeat(11,60px)]',
+  'grid-rows-[repeat(12,60px)] grid-cols-[repeat(12,60px)]',
+  'grid-rows-[repeat(13,60px)] grid-cols-[repeat(13,60px)]',
+  'grid-rows-[repeat(14,60px)] grid-cols-[repeat(14,60px)]',
+  'grid-rows-[repeat(15,60px)] grid-cols-[repeat(15,60px)]',
+  'grid-rows-[repeat(16,60px)] grid-cols-[repeat(16,60px)]',
+  'grid-rows-[repeat(17,60px)] grid-cols-[repeat(17,60px)]',
+  'grid-rows-[repeat(18,60px)] grid-cols-[repeat(18,60px)]',
+  'grid-rows-[repeat(19,60px)] grid-cols-[repeat(19,60px)]',
+  'grid-rows-[repeat(20,60px)] grid-cols-[repeat(20,60px)]',
+  'grid-rows-[repeat(21,60px)] grid-cols-[repeat(21,60px)]',
+  'grid-rows-[repeat(22,60px)] grid-cols-[repeat(22,60px)]',
+  'grid-rows-[repeat(23,60px)] grid-cols-[repeat(23,60px)]',
+  'grid-rows-[repeat(24,60px)] grid-cols-[repeat(24,60px)]',
+  'grid-rows-[repeat(25,60px)] grid-cols-[repeat(25,60px)]',
+  'grid-rows-[repeat(26,60px)] grid-cols-[repeat(26,60px)]',
+  'grid-rows-[repeat(27,60px)] grid-cols-[repeat(27,60px)]',
+  'grid-rows-[repeat(28,60px)] grid-cols-[repeat(28,60px)]',
+  'grid-rows-[repeat(29,60px)] grid-cols-[repeat(29,60px)]',
+  'grid-rows-[repeat(30,60px)] grid-cols-[repeat(30,60px)]',
+  'grid-rows-[repeat(31,60px)] grid-cols-[repeat(31,60px)]',
+];
+const rowConfigs = [
+  'col-1',
+  'col-2',
+  'col-3',
+  'col-4',
+  'col-5',
+  'col-6',
+  'col-7',
+  'col-8',
+  'col-9',
+  'col-10',
+  'col-11',
+  'col-12',
+  'col-13',
+  'col-14',
+  'col-15',
+  'col-16',
+  'col-17',
+  'col-18',
+  'col-19',
+  'col-20',
+  'col-21',
+  'col-22',
+  'col-23',
+  'col-24',
+  'col-25',
+  'col-26',
+  'col-27',
+  'col-28',
+  'col-29',
+  'col-30',
+  'col-31',
+];
+const colConfigs = [
+  'row-1',
+  'row-2',
+  'row-3',
+  'row-4',
+  'row-5',
+  'row-6',
+  'row-7',
+  'row-8',
+  'row-9',
+  'row-10',
+  'row-11',
+  'row-12',
+  'row-13',
+  'row-14',
+  'row-15',
+  'row-16',
+  'row-17',
+  'row-18',
+  'row-19',
+  'row-20',
+  'row-21',
+  'row-22',
+  'row-23',
+  'row-24',
+  'row-25',
+  'row-26',
+  'row-27',
+  'row-28',
+  'row-29',
+  'row-30',
+  'row-31',
+];
+
+export function Board({ board }: BoardShape) {
+  const classes: string[] = [
+    'grid',
+    'col-1',
+    'row-1',
+    gridConfigs[board.size - 1] || '',
+  ];
+
+  return <div className={ classes.join(' ') }>
+    { board.cells().map(([cellData, a, b], index) => {
+      return <Cell key={ index } cell={ cellData } row={ rowConfigs[b] } col={ colConfigs[a] } />;
+    }) }
+  </div>;
+}
