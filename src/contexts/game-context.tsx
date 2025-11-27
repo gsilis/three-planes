@@ -20,7 +20,7 @@ type GameContextShape = {
   start: () => void,
 }
 
-const BOARD_SIZE = 10;
+const BOARD_SIZE = 11;
 const BOARDS = [Layer.AIR, Layer.SEA, Layer.UNDERSEA];
 const nullBoard = new Board(Layer.NONE, 0);
 const nullPlayer = Player.create('NULL');
