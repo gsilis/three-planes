@@ -1,3 +1,5 @@
+import type Player from "./player";
+
 export class GamePieceDirection {
   static NORTH = 1;
   static SOUTH = 2;
@@ -8,4 +10,6 @@ export class GamePieceDirection {
 export interface GamePiece {
   type: string;
   direction: GamePieceDirection;
+  player: Player;
+  moves: number;
 }

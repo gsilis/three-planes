@@ -3,6 +3,9 @@ import { GameContext } from "../contexts/game-context";
 import type { Layer } from "../game/layer";
 import { SelectedCellContext } from "../contexts/selected-cell-context";
 import { SelectedPieceContext } from "../contexts/selected-piece-context";
+import { Setup } from "./Setup";
+import { GameState } from "../game/game";
+import { SelectedPiece } from "./SelectedPiece";
 
 export function Controls() {
   const gameContext = useContext(GameContext);
@@ -13,20 +16,35 @@ export function Controls() {
     selectedCellContext.setCell(null);
     selectedPieceContext.setPiece(null);
   };
+  const isSetup = GameState.SETUP === gameContext.state;
+  const isMoving = GameState.MOVING === gameContext.state;
+  const isTurn = GameState.TURN === gameContext.state;
 
-  return <div>
-    <section className="flex flex-col">
+  return <div className="mx-1">
+    { isSetup && <Setup /> }
+    { isTurn && <section className="flex flex-col gap-2">
       <h1>Layer</h1>
       { gameContext.game.boards().map((board) => {
-        return <button onClick={ () => setLayer(board.layer) } key={ `${board.layer}` }>
-          { gameContext.board === board ? `> ${board.layer}` : `${board.layer}` }
+        const classes = [
+          'rounded-md',
+          'text-white',
+          'cursor-pointer',
+        ];
+        if (board === gameContext.board) {
+          classes.push('bg-sky-700', 'hover:bg-sky-800');
+        } else {
+          classes.push('bg-sky-600', 'hover:bg-sky-700');
+        }
+        return <button className={ classes.join(' ') } onClick={ () => setLayer(board.layer) } key={ `${board.layer}` }>
+          { `${board.layer}` }
         </button>
       }) }
-    </section>
-    <section className="flex flex-col">
+    </section> }
+    { isTurn && <section className="flex flex-col my-2">
       <h1>Piece</h1>
       { !selectedPieceContext.piece && <p>No piece selected</p> }
-      { selectedPieceContext.piece && <p>Selected Piece!</p> }
-    </section>
+      { selectedPieceContext.piece && <SelectedPiece /> }
+    </section> }
+    { isMoving && <p>Moving...</p> }
   </div>;
 }

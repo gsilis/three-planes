@@ -7,3 +7,14 @@ export function fill<T>(size: number, fill: T): T[] {
 
   return a;
 }
+
+export function nextAfter(arr: any[], item: any): any {
+  const index = arr.indexOf(item);
+  const next = arr[index + 1];
+
+  if (next) {
+    return next;
+  } else {
+    return arr[0];
+  }
+}

@@ -13,6 +13,10 @@ export class Cell {
     this._coordinate = coordinate;
   }
 
+  get coordinate(): Coordinate {
+    return this._coordinate;
+  }
+
   get piece(): GamePiece | null {
     return this._piece;
   }
