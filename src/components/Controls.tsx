@@ -6,15 +6,18 @@ import { SelectedPieceContext } from "../contexts/selected-piece-context";
 import { Setup } from "./Setup";
 import { GameState } from "../game/game";
 import { SelectedPiece } from "./SelectedPiece";
+import { MoveContext } from "../contexts/move-context";
 
 export function Controls() {
   const gameContext = useContext(GameContext);
   const selectedCellContext = useContext(SelectedCellContext);
   const selectedPieceContext = useContext(SelectedPieceContext);
+  const moveContext = useContext(MoveContext);
   const setLayer = (layer: Layer) => {
     gameContext.setLayer(layer);
     selectedCellContext.setCell(null);
     selectedPieceContext.setPiece(null);
+    moveContext.clearPoint();
   };
   const isSetup = GameState.SETUP === gameContext.state;
   const isMoving = GameState.MOVING === gameContext.state;

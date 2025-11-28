@@ -22,12 +22,17 @@ export function SelectedPiece() {
   const canMove = piece?.player === gameContext.player;
 
   const onMove = () => {
-    if (!coordinate) return;
+    if (!coordinate || !piece) return;
 
-    moveContext.setPoint(coordinate, remainingMoves);
+    moveContext.setPoint(coordinate, piece);
   };
   const onCancel = () => {
     moveContext.clearPoint();
+  };
+  const onSet = () => {
+    if (!moveContext.piece || !gameContext.board || !moveContext.toPoint) return;
+
+    gameContext.moves.movePiece(moveContext.piece, gameContext.board, moveContext.toPoint);
   };
 
   return <div>
@@ -40,7 +45,8 @@ export function SelectedPiece() {
         return <p>{ move.type } - { move.distance }moves</p>;
       }) }
       { !hasMoves && !isMoving && canMove && <button className="bg-emerald-500 text-white cursor-pointer" onClick={ onMove }>Move Piece</button> }
-      { !hasMoves && isMoving && <button className="bg-emerald-500 text-white cursor-pointer" onClick={ onCancel }>Cancel Move</button> }
+      { !hasMoves && isMoving && canMove && <button className="bg-emerald-500 text-white cursor-pointer disabled:opacity-30" onClick={ onSet } disabled={ !moveContext.canMove }>Set</button> }
+      { !hasMoves && isMoving && <button className="bg-emerald-500 text-white cursor-pointer" onClick={ onCancel }>Cancel</button> }
     </div>
   </div>;
 }

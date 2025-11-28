@@ -30,6 +30,38 @@ export function Cell({
   const fromPoint = moveContext.fromPoint;
   const isMoving = fromPoint !== null;
   const isAvailable = isMoving && withinRange(fromPoint, cell.coordinate, moveContext.moves);
+  const isStartingPoint = moveContext.fromPoint?.equals(cell.coordinate) || false;
+
+  let bg = 'bg-slate-200';
+  let bgHover = 'hover:bg-slate-300';
+  let textColor = 'text-slate-500/50';
+
+  if (isSelected) {
+    if (isStartingPoint) {
+      bg = 'bg-yellow-400';
+      bgHover = 'bg-yellow-500';
+    } else if (isAvailable) {
+      bg = 'bg-emerald-300';
+      bgHover = 'hover:bg-emerald-400';
+    } else {
+      bg = 'bg-slate-400';
+      bgHover = 'hover:bg-slate-500';
+    }
+  } else {
+    if (isStartingPoint) {
+      bg = 'bg-yelloe-300';
+      bgHover = 'bg-yellow-400';
+    } if (isAvailable) {
+      bg = 'bg-emerald-200';
+      bgHover = 'bg-emerald-400';
+    }
+  }
+
+  if (playerPiece) {
+    if (isStartingPoint && isSelected) textColor = 'text-red-300';
+    else textColor = 'text-red-400';
+  } else {
+  }
 
   const classes = [
     'p-2',
@@ -43,10 +75,9 @@ export function Cell({
     'h-[60px]',
     'border-slate-300',
     'border-1',
-    playerPiece ? 'text-emerald-600 font-bold' : 'text-black/40',
-    isSelected ? 'bg-slate-400' : isAvailable ? 'bg-emerald-300' : 'bg-slate-200',
-    isSelected ? 'hover:bg-slate-500' : 'hover:bg-slate-300',
-    isAvailable ? 'bg-emerald-300' : '',
+    bg,
+    bgHover,
+    textColor,
     col,
     row
   ];
@@ -66,7 +97,6 @@ export function Cell({
   return <div className={ classes.join(' ') } onClick={ onClick }>
     <div className={ cellClasses.join(' ') }>
       { hasPiece ? <Piece piece={ cell.piece as GamePiece } /> : '' }
-      { isAvailable && 'A' }
     </div>
   </div>;
 }

@@ -18,4 +18,8 @@ export class Coordinate {
   get b(): number {
     return this._b;
   }
+
+  equals(point: Coordinate) {
+    return this.a === point.a && this.b === point.b;
+  }
 }
