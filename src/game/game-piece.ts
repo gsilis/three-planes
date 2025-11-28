@@ -8,6 +8,7 @@ export class GamePieceDirection {
 }
 
 export interface GamePiece {
+  id: number,
   type: string;
   direction: GamePieceDirection;
   player: Player;

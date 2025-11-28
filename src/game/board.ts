@@ -1,63 +1,67 @@
-import { Cell } from "./cell";
+import { createMatrix } from "../utilities/array";
+import { BoardType } from "./board-type";
 import { Coordinate } from "./coordinate";
-import type { GamePiece } from "./game-piece";
-import type { Layer } from "./layer";
 
 export class Board {
-  private _layer: Layer;
-  private _cells: Cell[][] = [];
-  private _cachedCells: [Cell, number, number][] = [];
-  private _size: number;
+  private _name: BoardType = BoardType.NULL;
+  private _boardSize: number;
+  private _cells: number[][] = [];
 
-  constructor(layer: Layer, size: number) {
-    this._layer = layer;
-    this._size = size;
-    this._cells = [];
-    this.setupCells();
+  constructor(name: BoardType, boardSize: number) {
+    this._name = name;
+    this._boardSize = boardSize;
+    this._cells = createMatrix(this._boardSize);
   }
 
-  get layer(): Layer {
-    return this._layer;
+  get name(): BoardType {
+    return this._name;
   }
 
-  get size(): number {
-    return this._size;
+  coordinateFor(value: number): Coordinate {
+    let a = -1, b = -1;
+
+    this._cells.forEach((row, possibleA) => {
+      row.forEach((possibleValue, possibleB) => {
+        if (possibleValue === value) {
+          a = possibleA;
+          b = possibleB;
+        }
+      });
+    });
+
+    return Coordinate.create(a, b);
   }
 
-  cellAt(coordinate: Coordinate): Cell | null
-  cellAt(a: Coordinate | number, b?: number): Cell | null {
-    if (typeof a === 'object') {
-      b = a.b;
-      a = a.a;
-    } else if (b === undefined) {
-      throw new Error(`If passing coordinates indivudually, 'b' parameter must be defined.`);
-    }
+  valueFor(coordinate: Coordinate): number {
+    const row = this._cells[coordinate.a] || [];
+    const cell = row[coordinate.b] || -1;
 
-    const row = this._cells[a] || [];
-    const cell = row[b];
-
-    return cell || null;
+    return cell;
   }
 
-  cellFor(piece: GamePiece): Cell | null {
-    const config = this.cells().find(c => c[0]?.piece === piece) || null;
-    return config && config[0];
+  setValueFor(coordinate: Coordinate, value: number): number {
+    let oldValue = -1;
+
+    try {
+      oldValue = this._cells[coordinate.a][coordinate.b];
+      this._cells[coordinate.a][coordinate.b] = value;
+    } catch(e) {}
+
+    return oldValue;
   }
 
-  cells(): [Cell, number, number][] {
-    return [...this._cachedCells];
+  move(from: Coordinate, to: Coordinate): number {
+    const oldValue = this.setValueFor(from, 0);
+    return this.setValueFor(to, oldValue);
   }
 
-  private setupCells() {
-    for (let a = 0; a < this._size; a++) {
-      this._cells[a] = [];
+  wipe() {
+    const size = this._boardSize;
 
-      for (let b = 0; b < this._size; b++) {
-        const cell = Cell.create(Coordinate.create(a, b));
-
-        this._cells[a].push(cell);
-        this._cachedCells.push([cell, a, b]);
+    this._cells.forEach((row) => {
+      for (let x = 0; x < size; x++) {
+        row[x] = 0;
       }
-    }
+    });
   }
 }

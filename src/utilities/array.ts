@@ -18,3 +18,18 @@ export function nextAfter(arr: any[], item: any): any {
     return arr[0];
   }
 }
+
+export function createMatrix(size: number): number[][] {
+  const arr: number[][] = [];
+
+  for (let x = 0; x < size; x++) {
+    const row: number[] = [];
+    arr.push(row);
+
+    for (let y = 0; y < size; y++) {
+      row.push(0);
+    }
+  }
+
+  return arr;
+}
