@@ -33,3 +33,9 @@ export function createMatrix(size: number): number[][] {
 
   return arr;
 }
+
+export function maxFrom(arr: number[]): number {
+  return arr.reduce((running, num) => {
+    return Math.max(running, num);
+  }, 0);
+}

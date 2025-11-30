@@ -17,6 +17,10 @@ export class Board {
     return this._name;
   }
 
+  get cells(): number[][] {
+    return [...this._cells.map(r => [...r])];
+  }
+
   coordinateFor(value: number): Coordinate {
     let a = -1, b = -1;
 
@@ -50,6 +54,26 @@ export class Board {
     return oldValue;
   }
 
+  addValueFor(coordinate: Coordinate, value: number) {
+    const existingValue = this.valueFor(coordinate);
+
+    try {
+      this._cells[coordinate.a][coordinate.b] = existingValue + value;
+    } catch (e) {}
+
+    return existingValue;
+  }
+
+  subtractValueFor(coordinate: Coordinate, value: number) {
+    const existingValue = this.valueFor(coordinate);
+
+    try {
+      this._cells[coordinate.a][coordinate.b] = existingValue - value;
+    } catch (e) {}
+
+    return existingValue;
+  }
+
   move(from: Coordinate, to: Coordinate): number {
     const oldValue = this.setValueFor(from, 0);
     return this.setValueFor(to, oldValue);
@@ -63,5 +87,9 @@ export class Board {
         row[x] = 0;
       }
     });
+  }
+
+  toString() {
+    return this._cells.map(c => c.join(',')).join(',');
   }
 }

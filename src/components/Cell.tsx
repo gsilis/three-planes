@@ -1,102 +1,58 @@
-import { useContext } from "react";
-import type { Cell as CellData } from "../game/cell";
-import { SelectedCellContext } from "../contexts/selected-cell-context";
-import { SelectedPieceContext } from "../contexts/selected-piece-context";
-import { Piece } from "./Piece";
-import type { GamePiece } from "../game/game-piece";
+import { useContext, useEffect, useMemo } from "react";
+import { Coordinate } from "../game/coordinate";
 import { GameContext } from "../contexts/game-context";
-import { MoveContext } from "../contexts/move-context";
-import { withinRange } from "../utilities/distance";
 
-type CellShape = {
-  cell: CellData,
-  col: string,
-  row: string,
+type CellProps = {
+  a: number,
+  b: number,
 };
 
 export function Cell({
-  cell,
-  col,
-  row,
-}: CellShape) {
+  a,
+  b,
+}: CellProps) {
   const gameContext = useContext(GameContext);
-  const selectedCellContext = useContext(SelectedCellContext);
-  const selectedPieceContext = useContext(SelectedPieceContext);
-  const moveContext = useContext(MoveContext);
-  const isSelected = cell === selectedCellContext.cell;
-  const piece = cell.piece;
-  const hasPiece = !!piece;
-  const playerPiece = hasPiece && piece.player === gameContext.player;
-  const fromPoint = moveContext.fromPoint;
-  const isMoving = fromPoint !== null;
-  const isAvailable = isMoving && withinRange(fromPoint, cell.coordinate, moveContext.moves);
-  const isStartingPoint = moveContext.fromPoint?.equals(cell.coordinate) || false;
-
-  let bg = 'bg-slate-200';
-  let bgHover = 'hover:bg-slate-300';
-  let textColor = 'text-slate-500/50';
-
-  if (isSelected) {
-    if (isStartingPoint) {
-      bg = 'bg-yellow-400';
-      bgHover = 'bg-yellow-500';
-    } else if (isAvailable) {
-      bg = 'bg-emerald-300';
-      bgHover = 'hover:bg-emerald-400';
-    } else {
-      bg = 'bg-slate-400';
-      bgHover = 'hover:bg-slate-500';
-    }
-  } else {
-    if (isStartingPoint) {
-      bg = 'bg-yelloe-300';
-      bgHover = 'bg-yellow-400';
-    } if (isAvailable) {
-      bg = 'bg-emerald-200';
-      bgHover = 'bg-emerald-400';
-    }
-  }
-
-  if (playerPiece) {
-    if (isStartingPoint && isSelected) textColor = 'text-red-300';
-    else textColor = 'text-red-400';
-  } else {
-  }
-
-  const classes = [
-    'p-2',
-    'm-1',
-    'text-center',
-    'cursor-pointer',
-    'grid',
-    'grid-rows-3',
-    'grid-cols-3',
-    'w-[60px]',
-    'h-[60px]',
-    'border-slate-300',
-    'border-1',
-    bg,
-    bgHover,
-    textColor,
-    col,
-    row
-  ];
-  const cellClasses = [
-    'col-2',
-    'row-2',
-  ];
+  const coordinate = useMemo<Coordinate>(() => {
+    return Coordinate.create(a, b);
+  }, [a, b]);
+  const size = gameContext.game.boardSize;
+  const selectBoard = gameContext.game.selectBoard();
+  const hoverBoard = gameContext.game.hoverBoard();
+  const selected = selectBoard.valueFor(coordinate);
+  const hover = hoverBoard.valueFor(coordinate);
   const onClick = () => {
-    selectedCellContext.setCell(cell);
-    if (cell.piece) selectedPieceContext.setPiece(cell.piece);
+    const newValue = selected > 0 ? 0 : 1;
+    console.log('SETTING VALUE', newValue);
+    selectBoard.setValueFor(coordinate, newValue);
+  };
+  const onMouseOver = () => {
+    hoverBoard.addValueFor(coordinate, 1);
+  };
+  const onMouseOut = () => {
+    hoverBoard.subtractValueFor(coordinate, 1);
   };
 
-  if (isAvailable) {
-    console.log(`(${cell.coordinate.a}, ${cell.coordinate.b})`);
-  }
+  useEffect(() => {
+    console.log('UPDATED');
+  }, [selectBoard.toString()]);
 
-  return <div className={ classes.join(' ') } onClick={ onClick }>
-    <div className={ cellClasses.join(' ') }>
-      { hasPiece ? <Piece piece={ cell.piece as GamePiece } /> : '' }
-    </div>
-  </div>;
+  const classes = [
+    'inline-block',
+    'w-5',
+    'h-5',
+    'border-1',
+    'm-0',
+    'leading-none',
+    'box-border',
+    'overflow-hidden',
+    selected > 0 && 'border-red-500',
+    hover > 0 && 'bg-green-400',
+  ].filter(Boolean).join(' ');
+
+  return <div
+    className={ classes }
+    onClick={ onClick }
+    onMouseOver={ onMouseOver }
+    onMouseOut={ onMouseOut }
+  >{ selected }</div>;
 }

@@ -1,96 +1,40 @@
-import { createContext, useEffect, useMemo, useState } from "react"
-import Game, { GameState } from "../game/game"
-import { Layer } from "../game/layer"
-import { Board } from "../game/board"
-import Player from "../game/player"
-import Moves from "../game/moves"
+import { createContext, useContext, useEffect, useMemo, useState } from "react"
+import { Game } from "../game/game"
+import PlayerManager from "../game/player-manager";
+import { PlayerManagerContext } from "./players-context";
+import { GameState } from "../game/game-state";
+
+const BOARD_SIZE = 21;
 
 type GameContextShape = {
   game: Game,
-  layer: Layer,
-  setLayer: (layer: Layer) => void,
-  board: Board,
-  player: Player | null,
-  players: Player[],
-  moves: Moves,
-  endTurn: () => void,
-  addPlayer: (player: Player) => void,
-  removePlayer: (player: Player) => void,
   state: GameState,
-  start: () => void,
 }
 
-const BOARD_SIZE = 11;
-const BOARDS = [Layer.AIR, Layer.SEA, Layer.UNDERSEA];
-const nullBoard = new Board(Layer.NONE, 0);
-const nullPlayer = Player.create('NULL');
-const nullMoves = new Moves(nullPlayer);
-
 export const GameContext = createContext<GameContextShape>({
-  game: new Game([], 0),
-  layer: Layer.SEA,
-  setLayer: () => {},
-  board: nullBoard,
-  player: null,
-  players: [],
-  moves: nullMoves,
-  endTurn: () => {},
-  addPlayer: () => {},
-  removePlayer: () => {},
+  game: new Game(0, new PlayerManager()),
   state: GameState.NULL,
-  start: () => {},
 });
 
 export function GameContextProvider({ children }: { children: any }) {
-  const [layer, setLayer] = useState<Layer>(Layer.SEA);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [player, setPlayer] = useState<Player | null>(null);
-  const [gameState, setGameState] = useState<GameState>(GameState.NULL);
-  const [moves, setMoves] = useState<Moves>(nullMoves);
-  const game = useMemo(() => {
-    return new Game(BOARDS, BOARD_SIZE);
+  const players = useContext(PlayerManagerContext);
+  const [state, setState] = useState<GameState>(GameState.NULL);
+
+  const game = useMemo<Game>(() => {
+    return new Game(BOARD_SIZE, players.manager);
   }, []);
-  const addPlayer = (player: Player) => {
-    game.addPlayer(player);
-    setPlayers(game.players);
-  };
-  const removePlayer = (player: Player) => {
-    game.removePlayer(player);
-    setPlayers(game.players);
-  };
-  const endTurn = () => {
-    game.endTurn();
-    setPlayer(game.player);
-  };
-  const start = () => {
-    game.start();
-  };
 
   useEffect(() => {
-    const sub = game.state.subscribe((newState) => {
-      setGameState(newState);
-      setPlayer(game.player);
-      setMoves(game.turnMoves);
+    const sub = game.state().subscribe((newState) => {
+      setState(newState);
     });
 
-    return () => {
-      sub.unsubscribe();
-    };
-  }, [game]);
+    return () => sub.unsubscribe();
+  }, [game, setState]);
 
   const value = {
-    layer,
-    setLayer,
     game,
-    player,
-    players,
-    moves,
-    endTurn,
-    addPlayer,
-    removePlayer,
-    start,
-    board: game.layerFor(layer) || nullBoard,
-    state: gameState,
+    state,
   };
 
   return <GameContext value={ value }>{ children }</GameContext>;

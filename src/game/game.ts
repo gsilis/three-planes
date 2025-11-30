@@ -1,8 +1,10 @@
+import { BehaviorSubject } from "rxjs";
 import { Board } from "./board";
 import { BoardFactory } from "./board-factory";
 import { BoardType } from "./board-type";
 import type { Coordinate } from "./coordinate";
 import type { GamePiece } from "./game-piece";
+import { GameState } from "./game-state";
 import { Layer } from "./layer";
 import type Player from "./player";
 import type PlayerManager from "./player-manager";
@@ -11,6 +13,7 @@ import { Turn } from "./turn";
 type BoardSet = Record<string, Board>;
 
 export class Game {
+  private _state: BehaviorSubject<GameState>;
   private _boardSize: number;
   private _boardFactory: BoardFactory;
   private _boards: BoardSet[] = [];
@@ -22,6 +25,7 @@ export class Game {
   private _turns: Turn[] = [];
 
   constructor(boardSize: number, players: PlayerManager) {
+    this._state = new BehaviorSubject<GameState>(GameState.SETUP);
     this._boardSize = boardSize;
     this._players = players;
 
@@ -30,7 +34,9 @@ export class Game {
     this._select = this._boardFactory.create(BoardType.SELECT);
     this._hover = this._boardFactory.create(BoardType.HOVER);
     this._moves = this._boardFactory.create(BoardType.MOVES);
+  }
 
+  setup() {
     this._players.all().forEach(() => {
       this._boards.push({
         [Layer.AIR]: this._boardFactory.create(BoardType.PIECES),
@@ -38,26 +44,28 @@ export class Game {
         [Layer.UNDERSEA]: this._boardFactory.create(BoardType.PIECES),
       });
     });
+
+    this._state.next(GameState.READY);
   }
 
-  startTurn(player: Player) {
+  get boardSize(): number {
+    return this._boardSize;
+  }
+
+  startTurn(player: Player): Turn {
     this._moves.wipe();
     this._select.wipe();
-    this._turns.push(new Turn(player));
+
+    const boards = Object.values(this.boardsFor(player) || {});
+    const turn = new Turn(player, boards);
+    this._turns.push(turn);
+    this._state.next(GameState.TURN);
+
+    return turn;
   }
 
   endTurn() {
     console.log('End Turn');
-  }
-
-  select(coordinate?: Coordinate) {
-    this._select.wipe();
-    if (coordinate) this._select.setValueFor(coordinate, 1);
-  }
-
-  hover(coordinate?: Coordinate) {
-    this._hover.wipe();
-    if (coordinate) this._hover.setValueFor(coordinate, 1);
   }
 
   addPiece(player: Player, piece: GamePiece, boardName: string, coordinate: Coordinate) {
@@ -66,17 +74,6 @@ export class Game {
 
     board.setValueFor(coordinate, piece.id);
     this._pieces.push(piece);
-  }
-
-  movePiece(player: Player, piece: GamePiece, boardName: string, toCoordinate: Coordinate): GamePiece | void {
-    const board = this.playerAndBoardFor(player, boardName);
-    if (!board) return;
-
-    const fromCoordinate = board.coordinateFor(piece.id);
-    const oldId = board.move(fromCoordinate, toCoordinate);
-    const oldPiece = this._pieces.find(p => p.id === oldId);
-
-    return oldPiece;
   }
 
   boardsFor(player: Player): BoardSet | void {
@@ -94,6 +91,10 @@ export class Game {
 
   moveBoard(): Board {
     return this._moves;
+  }
+
+  state() {
+    return this._state;
   }
 
   private playerAndBoardFor(player: Player, boardName: string): Board | void {
